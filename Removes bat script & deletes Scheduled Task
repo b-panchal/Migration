@@ -1,0 +1,10 @@
+# Removes batch script and also deletes Scheduled tasks
+# To be created on New UEM Tenant
+
+$taskName = "WS1 to WS1 Win10 Migration"
+$taskExists = Get-ScheduledTask | Where-Object {$_.TaskName -like $taskName }
+if($taskExists) {
+   Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+}
+
+Remove-item -Path 'C:\Temp\WS1Migration' -Force -Recurse -ErrorAction SilentlyContinue

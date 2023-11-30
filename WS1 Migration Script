@@ -1,0 +1,19 @@
+# Script which creates a scheduled task to call copied batch script which will unenroll and reenroll the device..
+
+
+$taskName = "WS1 to WS1 Win10 Migration"
+$taskExists = Get-ScheduledTask | Where-Object {$_.TaskName -like $taskName }
+
+if($taskExists) {
+   Write-Host 'WS1 to WS1 Win10 Migration'
+} 
+else {
+		$action = New-ScheduledTaskAction -Execute "C:\Temp\WS1Migration\WS1toWS1Win10Migration.bat"
+        $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 60) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+        $trigger = @(
+            $(New-ScheduledTaskTrigger -Daily -At 11AM),
+            $(New-ScheduledTaskTrigger -Daily -At 3PM)
+        )
+        Register-ScheduledTask -Action $action -TaskName $taskName -Description "Managed by UEM" -RunLevel Highest -User SYSTEM
+        Set-ScheduledTask -TaskName $taskName -Trigger $trigger -Settings $settings 
+}
